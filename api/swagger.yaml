@@ -1,0 +1,1608 @@
+---
+swagger: "2.0"
+info:
+  description: "This is Fax.to REST API client for Go."
+  version: "2.0.0"
+  title: "Fax.to REST API client for Go"
+  termsOfService: "https://fax.to/terms-of-service"
+  contact:
+    url: "https://fax.to/contact-us"
+    email: "inquiries@fax.to"
+host: "api.fax.to"
+basePath: "/api/v2"
+tags:
+- name: "fax-sending"
+  description: "Everything about sending a fax"
+- name: "user-management"
+  description: "Operations about the users"
+- name: "fax-receiving"
+  description: "All about receiving a fax"
+schemes:
+- "https"
+paths:
+  /fax:
+    post:
+      tags:
+      - "fax-sending"
+      summary: "This API is for sending a new fax in any fax numbers anywhere in the\
+        \ world"
+      operationId: "FaxPost"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "fax_number"
+        description: "The fax number of the recipient"
+        required: true
+        x-exportParamName: "FaxNumber"
+      - in: "body"
+        name: "document_id"
+        description: "The id of the document to be sent"
+        required: true
+        x-exportParamName: "DocumentId"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              fax_job_id:
+                type: "integer"
+                description: "The id of the fax job. It is used to check the status\
+                  \ of the fax job."
+              user_cash_balance:
+                type: "number"
+                description: "The remaining cash balance"
+              cost:
+                type: "number"
+                description: "The cost of sending fax"
+        400:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+  /fax/{document_id}/costs:
+    get:
+      tags:
+      - "fax-sending"
+      summary: "This API is for computing the cost of the fax to be sent"
+      operationId: "FaxDocumentIdCostsGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "document_id"
+        in: "path"
+        description: "The id of the document to be sent"
+        required: true
+        type: "integer"
+        x-exportParamName: "DocumentId"
+      - name: "fax_number"
+        in: "query"
+        description: "The fax number of the recipient"
+        required: false
+        type: "string"
+        x-exportParamName: "FaxNumber"
+        x-optionalDataType: "String"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              cost:
+                type: "number"
+                description: "The cost of fax for the specified fax number"
+        404:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+  /fax/{fax_job_id}/status:
+    get:
+      tags:
+      - "fax-sending"
+      summary: "This API gets the status of a fax"
+      operationId: "FaxJobIdStatusGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "fax_job_id"
+        in: "path"
+        description: "The id of the fax job"
+        required: true
+        type: "integer"
+        x-exportParamName: "FaxJobId"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+              user_cash_balance:
+                type: "number"
+                description: "Remaining cash balance"
+        404:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+  /fax-history:
+    get:
+      tags:
+      - "fax-sending"
+      summary: "This API gets the history of a fax"
+      operationId: "FaxHistoryGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "limit"
+        in: "query"
+        description: "The number of record to return"
+        required: false
+        type: "string"
+        x-exportParamName: "Limit"
+        x-optionalDataType: "String"
+      - name: "page"
+        in: "query"
+        description: "The page you want to get"
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+        x-optionalDataType: "String"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              history:
+                type: "array"
+                description: "The fax jobs requested"
+                items:
+                  $ref: "#/definitions/inline_response_200_3_history"
+  /incoming-faxes:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of incoming faxes"
+      operationId: "IncomingFaxesGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "limit"
+        in: "query"
+        description: "The number of record to return"
+        required: false
+        type: "string"
+        x-exportParamName: "Limit"
+        x-optionalDataType: "String"
+      - name: "page"
+        in: "query"
+        description: "The page you want to get"
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+        x-optionalDataType: "String"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              inbox:
+                type: "array"
+                description: "The faxes received by a certain user"
+                items:
+                  $ref: "#/definitions/inline_response_200_4_inbox"
+              meta:
+                $ref: "#/definitions/inline_response_200_4_meta"
+  /incoming-faxes/{recipient}:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of incoming faxes for a specific recipient"
+      operationId: "IncomingFaxesRecipientGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "recipient"
+        in: "path"
+        description: "The recipient's fax number"
+        required: true
+        type: "integer"
+        x-exportParamName: "Recipient"
+      - name: "limit"
+        in: "query"
+        description: "The number of record to return"
+        required: false
+        type: "string"
+        x-exportParamName: "Limit"
+        x-optionalDataType: "String"
+      - name: "page"
+        in: "query"
+        description: "The page you want to get"
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+        x-optionalDataType: "String"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              inbox:
+                type: "array"
+                description: "The faxes received by a certain user"
+                items:
+                  $ref: "#/definitions/inline_response_200_4_inbox"
+              meta:
+                $ref: "#/definitions/inline_response_200_4_meta"
+  /user:
+    post:
+      tags:
+      - "user-management"
+      summary: "This API registers a new user account"
+      operationId: "UserPost"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "email"
+        description: "The unique email of the user"
+        required: true
+        x-exportParamName: "Email"
+      - in: "body"
+        name: "password"
+        description: "The password of the user"
+        required: true
+        x-exportParamName: "Password"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              api_key:
+                type: "string"
+                description: "The API key of the registered user"
+        400:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+  /user/login:
+    post:
+      tags:
+      - "user-management"
+      summary: "This API is used for logging in on an existing user account"
+      operationId: "UserLoginPost"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "email"
+        description: "The unique email of the user"
+        required: true
+        x-exportParamName: "Email"
+      - in: "body"
+        name: "password"
+        description: "The password of the user"
+        required: true
+        x-exportParamName: "Password"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              api_key:
+                type: "string"
+                description: "The API key of the registered user"
+        400:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+  /subuser:
+    post:
+      tags:
+      - "user-management"
+      summary: "This API creates a subuser"
+      operationId: "SubUserPost"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "email"
+        description: "The unique email of the user"
+        required: true
+        x-exportParamName: "Email"
+      - in: "body"
+        name: "password"
+        description: "The password of the subuser"
+        required: true
+        x-exportParamName: "Password"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              api_key:
+                type: "string"
+                description: "The API key of the subuser"
+        400:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+  /balance:
+    get:
+      tags:
+      - "user"
+      summary: "This API gets the balance of a user account"
+      operationId: "BalanceGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              balance:
+                type: "number"
+                description: "The remaining cash balance"
+  /files:
+    get:
+      tags:
+      - "fax-sending"
+      summary: "This API gets all the files of a certain user"
+      operationId: "FilesGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "limit"
+        in: "query"
+        description: "The number of record to return"
+        required: false
+        type: "string"
+        x-exportParamName: "Limit"
+        x-optionalDataType: "String"
+      - name: "page"
+        in: "query"
+        description: "The page you want to get"
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+        x-optionalDataType: "String"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              files:
+                type: "array"
+                description: "File data"
+                items:
+                  $ref: "#/definitions/inline_response_200_8_files"
+  /file-clean:
+    get:
+      tags:
+      - "fax-sending"
+      summary: "This API is used for cleaning a document"
+      operationId: "FileCleanGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "document_id"
+        in: "header"
+        description: "The id of the document"
+        required: true
+        type: "integer"
+        x-exportParamName: "DocumentId"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+              user_id:
+                type: "integer"
+              created_date:
+                type: "string"
+                format: "date-time"
+              id:
+                type: "integer"
+              filename:
+                type: "string"
+              orig_filename:
+                type: "string"
+              preview_file:
+                type: "string"
+              preview_image:
+                type: "string"
+              preview_in_storage:
+                type: "integer"
+              file_extension:
+                type: "string"
+              filename_uploaded:
+                type: "string"
+              filesize:
+                type: "string"
+              s3:
+                type: "integer"
+              server_document_id:
+                type: "integer"
+              team_user_id:
+                type: "integer"
+              total_pages:
+                type: "integer"
+              updated_at:
+                type: "string"
+                format: "date-time"
+  /file-generate-preview:
+    get:
+      tags:
+      - "fax-sending"
+      summary: "This API generates a preview of a document"
+      operationId: "FileGeneratePreviewGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "document_id"
+        in: "header"
+        description: "The id of the document"
+        required: true
+        type: "integer"
+        format: "string"
+        x-exportParamName: "DocumentId"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              url:
+                type: "string"
+                description: "File preview url"
+  /files/{document_id}:
+    delete:
+      tags:
+      - "fax-sending"
+      summary: "This API deletes a document"
+      operationId: "FilesDocumentIDDelete"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "document_id"
+        in: "path"
+        description: "The id of the document"
+        required: true
+        type: "integer"
+        x-exportParamName: "DocumentId"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+  /countries:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of countries available in the Fax.to coverage"
+      operationId: "CountriesGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              data:
+                type: "array"
+                description: "Countries data"
+                items:
+                  $ref: "#/definitions/inline_response_200_12_data"
+  /states/{COUNTRY_CODE}:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of states of a given country available in the\
+        \ Fax.to coverage"
+      operationId: "StatesCountryCodeGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "COUNTRY_CODE"
+        in: "path"
+        description: "Indicates the country code in its ISO 3166-1 alpha-3 format"
+        required: true
+        type: "integer"
+        x-exportParamName: "COUNTRYCODE"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              states:
+                type: "array"
+                description: "States data"
+                items:
+                  $ref: "#/definitions/inline_response_200_13_states"
+  /areacodes/{COUNTRY_CODE}/{STATE_ID}:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of countries with its area code"
+      operationId: "AreaCodesCountryCodeStateIdGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "COUNTRY_CODE"
+        in: "path"
+        description: "Indicates the country code in its ISO 3166-1 alpha-3 format"
+        required: true
+        type: "integer"
+        x-exportParamName: "COUNTRYCODE"
+      - name: "STATE_ID"
+        in: "path"
+        description: "The numerical identifier for the state"
+        required: true
+        type: "integer"
+        x-exportParamName: "STATEID"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              areacodes:
+                type: "array"
+                description: "Area Codes data"
+                items:
+                  $ref: "#/definitions/inline_response_200_14_areacodes"
+  /countries/{countryCode}/didgroups:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of DID groups"
+      operationId: "CountriesCountryCodeDidGroupsGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "COUNTRY_CODE"
+        in: "path"
+        description: "Indicates the country code of the DID group in its ISO 3166-1\
+          \ alpha-3 format"
+        required: true
+        type: "integer"
+        x-exportParamName: "COUNTRYCODE"
+      - name: "didGroupIds"
+        in: "query"
+        description: "Used to display more information about specific DID groups"
+        required: false
+        type: "integer"
+        x-exportParamName: "DidGroupIds"
+        x-optionalDataType: "Int32"
+      - name: "stateId"
+        in: "query"
+        description: "The numerical identifier for the didGroup's state"
+        required: false
+        type: "integer"
+        x-exportParamName: "StateId"
+        x-optionalDataType: "Int32"
+      - name: "cityNamePattern"
+        in: "query"
+        description: "A string pattern for the beginning of city name"
+        required: false
+        type: "integer"
+        x-exportParamName: "CityNamePattern"
+        x-optionalDataType: "Int32"
+      - name: "areaCode"
+        in: "query"
+        description: "The area code of the DID group"
+        required: true
+        type: "integer"
+        x-exportParamName: "AreaCode"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              data:
+                type: "array"
+                description: "DID groups data"
+                items:
+                  $ref: "#/definitions/inline_response_200_15_data"
+  /countries/didgroups/{did_group_id}/provision:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of provisioned numbers"
+      operationId: "ProvisionNumbersGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "did_group_id"
+        in: "query"
+        description: "The id of the did group"
+        required: true
+        type: "integer"
+        x-exportParamName: "DidGroupId"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              message:
+                type: "string"
+                description: "Display message"
+              data:
+                $ref: "#/definitions/inline_response_200_16_data"
+  /numbers:
+    get:
+      tags:
+      - "fax-receiving"
+      summary: "This API gets a list of numbers to get the current configuration of\
+        \ one or multiple number"
+      operationId: "NumbersGet"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "limit"
+        in: "query"
+        description: "The number of record to return"
+        required: false
+        type: "string"
+        x-exportParamName: "Limit"
+        x-optionalDataType: "String"
+      - name: "page"
+        in: "query"
+        description: "The page you want to get"
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+        x-optionalDataType: "String"
+      - name: "api_key"
+        in: "header"
+        required: true
+        type: "string"
+        x-exportParamName: "ApiKey"
+      responses:
+        200:
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+                description: "The status of the API request"
+              numbers:
+                type: "array"
+                description: "Numbers data"
+                items:
+                  $ref: "#/definitions/inline_response_200_17_numbers"
+              meta:
+                $ref: "#/definitions/inline_response_200_4_meta"
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  inline_response_200_11:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+    example:
+      status: "status"
+  inline_response_200_4_meta_pagination_links:
+    properties:
+      previous:
+        type: "string"
+      next:
+        type: "string"
+    description: "The pagination links"
+    example:
+      next: "next"
+      previous: "previous"
+  inline_response_200_10:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      url:
+        type: "string"
+        description: "File preview url"
+    example:
+      url: "url"
+      status: "status"
+  inline_response_200_13:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      states:
+        type: "array"
+        description: "States data"
+        items:
+          $ref: "#/definitions/inline_response_200_13_states"
+    example:
+      status: "status"
+      states:
+      - code: "code"
+        name: "name"
+        id: "id"
+      - code: "code"
+        name: "name"
+        id: "id"
+  inline_response_200_4_inbox:
+    properties:
+      id:
+        type: "integer"
+      did_id:
+        type: "integer"
+      filename:
+        type: "string"
+      filesize:
+        type: "string"
+      number:
+        type: "string"
+      sender:
+        type: "string"
+      total_pages:
+        type: "integer"
+      created_at:
+        $ref: "#/definitions/inline_response_200_3_created"
+      preview_file:
+        type: "string"
+      file_url:
+        type: "string"
+    example:
+      did_id: 6
+      number: "number"
+      file_url: "file_url"
+      filename: "filename"
+      preview_file: "preview_file"
+      sender: "sender"
+      created_at:
+        date: "2000-01-23T04:56:07.000+00:00"
+        timezone: "timezone"
+        timezone_type: 6
+      id: 0
+      filesize: "filesize"
+      total_pages: 1
+  inline_response_200_12:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      data:
+        type: "array"
+        description: "Countries data"
+        items:
+          $ref: "#/definitions/inline_response_200_12_data"
+    example:
+      data:
+      - country: "country"
+        a2_code: "a2_code"
+        dial_code: 0
+        slug: "slug"
+      - country: "country"
+        a2_code: "a2_code"
+        dial_code: 0
+        slug: "slug"
+      status: "status"
+  inline_response_200_17_numbers:
+    properties:
+      id:
+        type: "integer"
+      order_reference:
+        type: "string"
+      country_code:
+        type: "string"
+      country:
+        type: "string"
+      city_name:
+        type: "string"
+      area_code:
+        type: "string"
+      did_group_id:
+        type: "integer"
+      did_number:
+        type: "string"
+      expiration_date:
+        type: "string"
+        format: "date"
+      status:
+        type: "string"
+    example:
+      country_code: "country_code"
+      country: "country"
+      city_name: "city_name"
+      order_reference: "order_reference"
+      area_code: "area_code"
+      did_number: "did_number"
+      id: 0
+      expiration_date: "2000-01-23"
+      did_group_id: 6
+      status: "status"
+  inline_response_200_16_data:
+    properties:
+      id:
+        type: "integer"
+      did_id:
+        type: "integer"
+      did_group_id:
+        type: "integer"
+      country_code:
+        type: "string"
+      city_name:
+        type: "string"
+      area_code:
+        type: "string"
+      number:
+        type: "string"
+      type:
+        type: "string"
+      trunk_id:
+        type: "integer"
+    example:
+      did_id: 6
+      country_code: "country_code"
+      number: "number"
+      city_name: "city_name"
+      trunk_id: 5
+      area_code: "area_code"
+      id: 0
+      type: "type"
+      did_group_id: 1
+  inline_response_200_8_files:
+    properties:
+      id:
+        type: "integer"
+      filename:
+        type: "string"
+      pages:
+        type: "integer"
+      size:
+        type: "integer"
+      uploaded:
+        type: "string"
+        format: "date"
+    example:
+      filename: "filename"
+      pages: 6
+      size: 1
+      uploaded: "2000-01-23"
+      id: 0
+  inline_response_200_15:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      data:
+        type: "array"
+        description: "DID groups data"
+        items:
+          $ref: "#/definitions/inline_response_200_15_data"
+    example:
+      data:
+      - city_name: "city_name"
+        area_code: "area_code"
+        did_group_id: 0
+      - city_name: "city_name"
+        area_code: "area_code"
+        did_group_id: 0
+      status: "status"
+  inline_response_200_14:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      areacodes:
+        type: "array"
+        description: "Area Codes data"
+        items:
+          $ref: "#/definitions/inline_response_200_14_areacodes"
+    example:
+      status: "status"
+      areacodes:
+      - country_code: "country_code"
+        area_code: "area_code"
+        state_id: 0
+      - country_code: "country_code"
+        area_code: "area_code"
+        state_id: 0
+  inline_response_200_17:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      numbers:
+        type: "array"
+        description: "Numbers data"
+        items:
+          $ref: "#/definitions/inline_response_200_17_numbers"
+      meta:
+        $ref: "#/definitions/inline_response_200_4_meta"
+    example:
+      meta:
+        pagination:
+          per_page: 2
+          total: 5
+          count: 5
+          links:
+            next: "next"
+            previous: "previous"
+          total_pages: 9
+          current_page: 7
+      numbers:
+      - country_code: "country_code"
+        country: "country"
+        city_name: "city_name"
+        order_reference: "order_reference"
+        area_code: "area_code"
+        did_number: "did_number"
+        id: 0
+        expiration_date: "2000-01-23"
+        did_group_id: 6
+        status: "status"
+      - country_code: "country_code"
+        country: "country"
+        city_name: "city_name"
+        order_reference: "order_reference"
+        area_code: "area_code"
+        did_number: "did_number"
+        id: 0
+        expiration_date: "2000-01-23"
+        did_group_id: 6
+        status: "status"
+      status: "status"
+  inline_response_200_16:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      message:
+        type: "string"
+        description: "Display message"
+      data:
+        $ref: "#/definitions/inline_response_200_16_data"
+    example:
+      data:
+        did_id: 6
+        country_code: "country_code"
+        number: "number"
+        city_name: "city_name"
+        trunk_id: 5
+        area_code: "area_code"
+        id: 0
+        type: "type"
+        did_group_id: 1
+      message: "message"
+      status: "status"
+  inline_response_200_3_history:
+    properties:
+      id:
+        type: "integer"
+      created:
+        $ref: "#/definitions/inline_response_200_3_created"
+      document_id:
+        type: "integer"
+      document:
+        type: "string"
+      recipient:
+        type: "string"
+      status:
+        type: "string"
+        description: "The status of the fax job"
+    example:
+      created:
+        date: "2000-01-23T04:56:07.000+00:00"
+        timezone: "timezone"
+        timezone_type: 6
+      document: "document"
+      recipient: "recipient"
+      id: 0
+      document_id: 1
+      status: "status"
+  inline_response_200:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      fax_job_id:
+        type: "integer"
+        description: "The id of the fax job. It is used to check the status of the\
+          \ fax job."
+      user_cash_balance:
+        type: "number"
+        description: "The remaining cash balance"
+      cost:
+        type: "number"
+        description: "The cost of sending fax"
+    example:
+      cost: 1.46581298050294517310021547018550336360931396484375
+      fax_job_id: 0
+      user_cash_balance: 6.02745618307040320615897144307382404804229736328125
+      status: "status"
+  inline_response_400:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      message:
+        type: "string"
+        description: "Display message"
+  inline_response_200_9:
+    properties:
+      status:
+        type: "string"
+      user_id:
+        type: "integer"
+      created_date:
+        type: "string"
+        format: "date-time"
+      id:
+        type: "integer"
+      filename:
+        type: "string"
+      orig_filename:
+        type: "string"
+      preview_file:
+        type: "string"
+      preview_image:
+        type: "string"
+      preview_in_storage:
+        type: "integer"
+      file_extension:
+        type: "string"
+      filename_uploaded:
+        type: "string"
+      filesize:
+        type: "string"
+      s3:
+        type: "integer"
+      server_document_id:
+        type: "integer"
+      team_user_id:
+        type: "integer"
+      total_pages:
+        type: "integer"
+      updated_at:
+        type: "string"
+        format: "date-time"
+    example:
+      s3: 5
+      preview_image: "preview_image"
+      filesize: "filesize"
+      total_pages: 7
+      preview_in_storage: 1
+      filename: "filename"
+      preview_file: "preview_file"
+      updated_at: "2000-01-23T04:56:07.000+00:00"
+      user_id: 0
+      team_user_id: 2
+      file_extension: "file_extension"
+      created_date: "2000-01-23T04:56:07.000+00:00"
+      id: 6
+      orig_filename: "orig_filename"
+      server_document_id: 5
+      status: "status"
+      filename_uploaded: "filename_uploaded"
+  inline_response_200_5:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      api_key:
+        type: "string"
+        description: "The API key of the registered user"
+    example:
+      api_key: "api_key"
+      status: "status"
+  inline_response_200_12_data:
+    properties:
+      country:
+        type: "string"
+      slug:
+        type: "string"
+      a2_code:
+        type: "string"
+      dial_code:
+        type: "integer"
+    example:
+      country: "country"
+      a2_code: "a2_code"
+      dial_code: 0
+      slug: "slug"
+  inline_response_200_4_meta_pagination:
+    properties:
+      total:
+        type: "integer"
+      count:
+        type: "integer"
+      per_page:
+        type: "integer"
+      current_page:
+        type: "integer"
+      total_pages:
+        type: "integer"
+      links:
+        $ref: "#/definitions/inline_response_200_4_meta_pagination_links"
+    description: "The pagination data"
+    example:
+      per_page: 2
+      total: 5
+      count: 5
+      links:
+        next: "next"
+        previous: "previous"
+      total_pages: 9
+      current_page: 7
+  inline_response_200_6:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      api_key:
+        type: "string"
+        description: "The API key of the subuser"
+    example:
+      api_key: "api_key"
+      status: "status"
+  inline_response_200_15_data:
+    properties:
+      did_group_id:
+        type: "integer"
+      area_code:
+        type: "string"
+      city_name:
+        type: "string"
+    example:
+      city_name: "city_name"
+      area_code: "area_code"
+      did_group_id: 0
+  inline_response_200_7:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      balance:
+        type: "number"
+        description: "The remaining cash balance"
+    example:
+      balance: 0.80082819046101150206595775671303272247314453125
+      status: "status"
+  inline_response_200_8:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      files:
+        type: "array"
+        description: "File data"
+        items:
+          $ref: "#/definitions/inline_response_200_8_files"
+    example:
+      files:
+      - filename: "filename"
+        pages: 6
+        size: 1
+        uploaded: "2000-01-23"
+        id: 0
+      - filename: "filename"
+        pages: 6
+        size: 1
+        uploaded: "2000-01-23"
+        id: 0
+      status: "status"
+  inline_response_200_14_areacodes:
+    properties:
+      country_code:
+        type: "string"
+      state_id:
+        type: "integer"
+      area_code:
+        type: "string"
+    example:
+      country_code: "country_code"
+      area_code: "area_code"
+      state_id: 0
+  inline_response_200_13_states:
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      code:
+        type: "string"
+    example:
+      code: "code"
+      name: "name"
+      id: "id"
+  inline_response_200_3_created:
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+      timezone_type:
+        type: "integer"
+      timezone:
+        type: "string"
+    example:
+      date: "2000-01-23T04:56:07.000+00:00"
+      timezone: "timezone"
+      timezone_type: 6
+  inline_response_200_1:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      cost:
+        type: "number"
+        description: "The cost of fax for the specified fax number"
+    example:
+      cost: 0.80082819046101150206595775671303272247314453125
+      status: "status"
+  inline_response_200_2:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      message:
+        type: "string"
+        description: "Display message"
+      user_cash_balance:
+        type: "number"
+        description: "Remaining cash balance"
+    example:
+      message: "message"
+      user_cash_balance: 0.80082819046101150206595775671303272247314453125
+      status: "status"
+  inline_response_200_3:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      history:
+        type: "array"
+        description: "The fax jobs requested"
+        items:
+          $ref: "#/definitions/inline_response_200_3_history"
+    example:
+      history:
+      - created:
+          date: "2000-01-23T04:56:07.000+00:00"
+          timezone: "timezone"
+          timezone_type: 6
+        document: "document"
+        recipient: "recipient"
+        id: 0
+        document_id: 1
+        status: "status"
+      - created:
+          date: "2000-01-23T04:56:07.000+00:00"
+          timezone: "timezone"
+          timezone_type: 6
+        document: "document"
+        recipient: "recipient"
+        id: 0
+        document_id: 1
+        status: "status"
+      status: "status"
+  inline_response_200_4_meta:
+    properties:
+      pagination:
+        $ref: "#/definitions/inline_response_200_4_meta_pagination"
+    description: "Contains the paginations links"
+    example:
+      pagination:
+        per_page: 2
+        total: 5
+        count: 5
+        links:
+          next: "next"
+          previous: "previous"
+        total_pages: 9
+        current_page: 7
+  inline_response_200_4:
+    properties:
+      status:
+        type: "string"
+        description: "The status of the API request"
+      inbox:
+        type: "array"
+        description: "The faxes received by a certain user"
+        items:
+          $ref: "#/definitions/inline_response_200_4_inbox"
+      meta:
+        $ref: "#/definitions/inline_response_200_4_meta"
+    example:
+      meta:
+        pagination:
+          per_page: 2
+          total: 5
+          count: 5
+          links:
+            next: "next"
+            previous: "previous"
+          total_pages: 9
+          current_page: 7
+      inbox:
+      - did_id: 6
+        number: "number"
+        file_url: "file_url"
+        filename: "filename"
+        preview_file: "preview_file"
+        sender: "sender"
+        created_at:
+          date: "2000-01-23T04:56:07.000+00:00"
+          timezone: "timezone"
+          timezone_type: 6
+        id: 0
+        filesize: "filesize"
+        total_pages: 1
+      - did_id: 6
+        number: "number"
+        file_url: "file_url"
+        filename: "filename"
+        preview_file: "preview_file"
+        sender: "sender"
+        created_at:
+          date: "2000-01-23T04:56:07.000+00:00"
+          timezone: "timezone"
+          timezone_type: 6
+        id: 0
+        filesize: "filesize"
+        total_pages: 1
+      status: "status"
+externalDocs:
+  description: "Find out more about Fax.to on its official documentation"
+  url: "https://api.fax.to/docs/v2"
